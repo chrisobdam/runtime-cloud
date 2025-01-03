@@ -1,0 +1,6 @@
+name = "DataAPI GQL Proxy"
+language = "rust"
+type = "provider"
+
+[provider]
+vendor = "Betty Blocks"

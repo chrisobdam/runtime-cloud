@@ -4,6 +4,20 @@ interface action {
    execute: func() -> string;          
  }
 
+interface system-info {
+   enum kind {
+       OS,
+       ARCH,
+   }
+
+   // Request information about the system the provider is running on
+   request-info: func(kind: kind) -> string;
+
+   // Example export to call from the provider for testing
+   call: func() -> string;
+}
+
 world component {
+   import system-info;
    export action;
 }
