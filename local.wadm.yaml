@@ -10,7 +10,7 @@ spec:
     - name: graphql-server
       type: component
       properties:
-        image: file://./build/graphql_server_s.wasm
+        image: file://./graphql-server/build/graphql_server_s.wasm
       traits:
         # Govern the spread/scheduling of the component
         - type: spreadscaler
@@ -25,7 +25,7 @@ spec:
     - name: action-runner
       type: component
       properties:
-        image: file://../action-runner/build/action_runner_s.wasm
+        image: file://./action-runner/build/action_runner_s.wasm
       traits:
         # Govern the spread/scheduling of the component
         - type: spreadscaler
@@ -48,7 +48,7 @@ spec:
     - name: action-example-a
       type: component
       properties:
-        image: file://../action-example-a/build/action_example_a_s.wasm
+        image: file://./action-example-a/build/action_example_a_s.wasm
       traits:
         # Govern the spread/scheduling of the component
         - type: spreadscaler
@@ -57,12 +57,18 @@ spec:
     - name: action-example-b
       type: component
       properties:
-        image: file://../action-example-b/build/action_example_b_s.wasm
+        image: file://./action-example-b/build/action_example_b_s.wasm
       traits:
         # Govern the spread/scheduling of the component
         - type: spreadscaler
           properties:
             instances: 1
+        - type: link
+          properties:
+            target: data-api-gql-proxy
+            namespace: bettyblocks
+            package: runtime-cloud
+            interfaces: [system-info]
 
     # Add a capability provider that enables HTTP access
     - name: httpserver
@@ -92,3 +98,11 @@ spec:
               - name: default-http
                 properties:
                   address: 127.0.0.1:8000
+    - name: data-api-gql-proxy
+      type: capability
+      properties:
+        image: file://./data-api-gql-proxy/build/data-api-gql-proxy.par.gz
+        config:
+          - name: provider-config
+            properties:
+              foo: bar
