@@ -1,0 +1,9 @@
+package bettyblocks:runtime-cloud;
+
+interface concat-text {
+   execute: func(a: string, b: string) -> string;          
+ }
+
+world component {
+   export concat-text;
+}
