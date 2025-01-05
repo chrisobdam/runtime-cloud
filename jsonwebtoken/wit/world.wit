@@ -1,0 +1,16 @@
+package bettyblocks:runtime-cloud;
+
+interface jsonwebtoken {
+   record jwt {
+      header: string,
+      payload: string,
+      signature: string,
+      verified: bool,
+   }
+
+   decode: func(encoded: string, secret: option<string>) -> result<jwt, string>;
+}
+
+world hello {
+   export jsonwebtoken;
+}
