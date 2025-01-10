@@ -1,0 +1,12 @@
+package bettyblocks:runtime-cloud;
+
+interface meta-artefact {
+   validate: func(app-uuid: string, action-uuid: string) -> result<bool, string>;
+}
+
+world cloud-artefact {
+   import wasi:logging/logging@0.1.0-draft;
+   import wasi:keyvalue/store@0.2.0-draft;
+   export meta-artefact;
+   export wasi:http/incoming-handler@0.2.2;
+}

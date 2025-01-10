@@ -1,0 +1,8 @@
+name = "cloud-artefact"
+version = "0.1.0"
+language = "rust"
+type = "component"
+
+[component]
+wit_world = "cloud-artefact"
+wasm_target = "wasm32-wasip2"
