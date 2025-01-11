@@ -71,47 +71,55 @@ struct Root {
     cloud: Cloud,
 }
 
-fn action_exists_in_app(cloud: &Cloud, app_uuid: String, action_uid: String) -> bool {
+fn action_exists_in_app(
+    cloud: &Cloud,
+    app_uuid: String,
+    action_uid: String,
+) -> Result<bool, String> {
     //FIX: findout how to define a default trait that unwrap_or_default can use
     let _default_app = Application::default();
     match cloud.get_application(app_uuid) {
-        Some(app) => app,
-        None => &_default_app,
+        Some(app) => match app.get_action(action_uid) {
+            Some(_) => Ok(true),
+            None => Err("Action not found".to_string()),
+        },
+        None => Err("Application not found".to_string()),
     }
-    .get_action(action_uid)
-    .is_some()
 }
 
 pub fn validate(app_uuid: String, action_uid: String) -> Result<bool, String> {
     let bucket = store::open("default").unwrap();
-
+    println!("app_uuid: {}", app_uuid);
+    //FIX: make the KV key a constant or a config
     match bucket.get("cloud") {
         Ok(str) => {
             let artefact = String::from_utf8(str.unwrap()).expect("Stored value is not valid utf8");
-            let Root { cloud } = serde_json::from_str(&artefact).unwrap();
+            let Root { cloud } =
+                serde_json::from_str(&artefact).expect("Error parsing json from store");
             match action_exists_in_app(&cloud, app_uuid, action_uid) {
-                true => Ok(true),
-                false => Err("Action not found".to_string()),
+                Ok(_) => Ok(true),
+                Err(err) => Err(err),
             }
         }
         Err(err) => Err(format!("Error: {}", err)),
     }
 }
 
-pub fn write_artefact(artefact: &String) -> Result<String, String> {
+pub fn write_artefact(_artefact: &String) -> Result<String, String> {
     // we don't accept any input for now, so we use the json string below
     let json_str = "{
         \"cloud\": {
             \"name\": \"BettyBlocks\",
             \"applications\": [
                 {
-                    \"uuid\": \"123\",
+                    \"uuid\": \"693b22e983fb46afa4eb353d82ece4bb\",
                     \"name\": \"MyApp\",
                     \"actions\": [
                         {
                             \"uuid\": \"456\",
                             \"auth\": \"None\",
-                            \"scope\": \"Public\"
+                            \"scope\": \"Public\",
+                            \"etag\": \"Public\"                            
                         }
                     ]
                 }
@@ -149,7 +157,7 @@ mod tests {
             }],
         };
         let result = action_exists_in_app(&cloud, "123".to_string(), "456".to_string());
-        assert!(result);
+        assert!(result.is_ok());
     }
 
     #[test]
@@ -168,7 +176,7 @@ mod tests {
             }],
         };
         let result = action_exists_in_app(&cloud, "123".to_string(), "46".to_string());
-        assert!(!result);
+        assert!(result.is_err());
     }
 
     #[test]
@@ -187,6 +195,25 @@ mod tests {
             }],
         };
         let result = action_exists_in_app(&cloud, "13".to_string(), "46".to_string());
-        assert!(!result);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_empty_args_for_exists_in_app() {
+        let cloud = Cloud {
+            name: "BettyBlocks".to_string(),
+            applications: vec![Application {
+                uuid: "123".to_string(),
+                name: "MyApp".to_string(),
+                actions: vec![Action {
+                    uuid: "456".to_string(),
+                    auth: "None".to_string(),
+                    scope: "Public".to_string(),
+                    etag: "123".to_string(),
+                }],
+            }],
+        };
+        let result = action_exists_in_app(&cloud, "".to_string(), "".to_string());
+        assert!(result.is_err());
     }
 }

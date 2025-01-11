@@ -4,10 +4,16 @@ interface action-runner {
    execute: func() -> string;
 }
 
+interface meta-artefact {
+   validate: func(app-uuid: string, action-uuid: string) -> result<bool, string>;
+}
+
 world hello {
    export wasi:http/incoming-handler@0.2.2;
    import wasi:logging/logging@0.1.0-draft;
    import wasi:http/outgoing-handler@0.2.2;
+   import wasmcloud:bus/lattice@1.0.0;
    import action-runner;
+   import meta-artefact;
    import wasi:config/runtime@0.2.0-draft;
 }

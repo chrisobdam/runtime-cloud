@@ -18,10 +18,18 @@ spec:
             instances: 1
         - type: link
           properties:
+            name: action-runner
             target: action-runner
             namespace: bettyblocks
             package: runtime-cloud
             interfaces: [action-runner]
+        - type: link
+          properties:
+            name: cloud-artefact
+            target: cloud-artefact
+            namespace: bettyblocks
+            package: runtime-cloud
+            interfaces: [meta-artefact]
     - name: action-runner
       type: component
       properties:
